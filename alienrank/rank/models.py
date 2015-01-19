@@ -4,6 +4,7 @@ import datetime
 
 # Django
 from django.db import models
+from django.db.models import Avg, Sum
 
 # Vendor
 from jsonfield import JSONField
@@ -14,6 +15,17 @@ class Domain(models.Model):
     name = models.CharField(max_length=200, db_index=True)
 
     added = models.DateTimeField(auto_now_add=True)
+
+    post_count = models.IntegerField(null=True)
+    score_total = models.IntegerField(null=True)
+    score_average = models.IntegerField(null=True)
+
+    def update_counts(self, save=True):
+        self.post_count = self.post_set.all().count() 
+        self.score_total = self.post_set.aggregate(Sum('score')).values()[0]
+        self.score_average = int(round(self.post_set.aggregate(Avg('score')).values()[0]))
+        if save:
+            self.save()
 
     @classmethod
     def update(cls, name):
