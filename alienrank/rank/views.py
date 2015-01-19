@@ -1,3 +1,8 @@
 from django.shortcuts import render
 
-# Create your views here.
+from rank.models import Domain
+
+def home(request):
+    
+    domains = Domain.objects.all().order_by('-post_count', '-score_average')
+    return render(request, 'base.html', {'domains': domains})

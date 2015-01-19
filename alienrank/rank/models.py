@@ -20,10 +20,18 @@ class Domain(models.Model):
     score_total = models.IntegerField(null=True)
     score_average = models.IntegerField(null=True)
 
+    @classmethod
+    def update_counts_all(cls):
+        for d in Domain.objects.all():
+            d.update_counts()
+
     def update_counts(self, save=True):
         self.post_count = self.post_set.all().count() 
-        self.score_total = self.post_set.aggregate(Sum('score')).values()[0]
-        self.score_average = int(round(self.post_set.aggregate(Avg('score')).values()[0]))
+        score_total = self.post_set.aggregate(Sum('score')).values()[0]
+        score_average = self.post_set.aggregate(Avg('score')).values()[0]
+        if score_average:
+            self.score_average = int(round(score_average))
+
         if save:
             self.save()
 
@@ -34,6 +42,8 @@ class Domain(models.Model):
         except Domain.DoesNotExist:
             domain = Domain(name=name)
             domain.save()
+
+        
         return domain
 
 class Link(models.Model):

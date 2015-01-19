@@ -11,7 +11,7 @@ from celery import shared_task
 import praw
 
 # AR
-from .models import Snapshot
+from .models import Snapshot, Domain
 
 logger = logging.getLogger(__name__)
 
@@ -23,4 +23,6 @@ def read_reddit_top():
     res = r.get_top(limit=100)
 
     s = Snapshot.create(res)
+
+    Domain.update_counts_all()
         
