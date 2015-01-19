@@ -74,16 +74,18 @@
             <thead >
             <tr>
               <th>#</th>
-              <th>Posts</th>
+              <th>Total Score</th>
               <th>Avg Score</th>
+              <th>Posts</th>
               <th>Domain Name</th>
             </tr>
             </thead>
             {% for d in domains %}
             <tr>
               <td>{{ forloop.counter }}</td>
-              <td>{{ d.post_count }}</td>
+              <td>{{ d.score_total }}</td>
               <td>{{ d.score_average }}</td>
+              <td>{{ d.post_count }}</td>
               <td>{{ d.name }}</td>
             </tr>
             {% endfor %}
