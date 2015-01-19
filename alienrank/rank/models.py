@@ -27,7 +27,7 @@ class Domain(models.Model):
 
     def update_counts(self, save=True):
         self.post_count = self.post_set.all().count() 
-        score_total = self.post_set.aggregate(Sum('score')).values()[0]
+        self.score_total = self.post_set.aggregate(Sum('score')).values()[0]
         score_average = self.post_set.aggregate(Avg('score')).values()[0]
         if score_average:
             self.score_average = int(round(score_average))
