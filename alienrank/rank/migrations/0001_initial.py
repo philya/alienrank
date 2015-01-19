@@ -16,6 +16,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('name', models.CharField(max_length=200, db_index=True)),
+                ('added', models.DateTimeField(auto_now_add=True)),
             ],
             options={
             },
@@ -26,6 +27,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('url', models.URLField(max_length=2083)),
+                ('url_hash', models.CharField(max_length=32)),
+                ('added', models.DateTimeField(auto_now_add=True)),
             ],
             options={
             },
@@ -50,6 +53,19 @@ class Migration(migrations.Migration):
             bases=(models.Model,),
         ),
         migrations.CreateModel(
+            name='PostSnapshot',
+            fields=[
+                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('place', models.IntegerField()),
+                ('data', jsonfield.fields.JSONField(null=True, blank=True)),
+                ('added', models.DateTimeField(auto_now_add=True)),
+                ('post', models.ForeignKey(to='rank.Post', null=True)),
+            ],
+            options={
+            },
+            bases=(models.Model,),
+        ),
+        migrations.CreateModel(
             name='Redditor',
             fields=[
                 ('id', models.CharField(max_length=10, serialize=False, primary_key=True)),
@@ -61,6 +77,8 @@ class Migration(migrations.Migration):
                 ('is_mod', models.BooleanField()),
                 ('is_gold', models.BooleanField()),
                 ('created', models.DateTimeField()),
+                ('added', models.DateTimeField(auto_now_add=True)),
+                ('updated', models.DateTimeField(auto_now=True)),
             ],
             options={
             },
@@ -70,9 +88,7 @@ class Migration(migrations.Migration):
             name='Snapshot',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('data', jsonfield.fields.JSONField(null=True, blank=True)),
                 ('added', models.DateTimeField(auto_now_add=True)),
-                ('post', models.ForeignKey(to='rank.Post')),
             ],
             options={
             },
@@ -81,14 +97,22 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Subreddit',
             fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
+                ('id', models.CharField(max_length=10, serialize=False, primary_key=True)),
                 ('name', models.CharField(max_length=20, db_index=True)),
                 ('url', models.URLField()),
                 ('info_url', models.URLField()),
+                ('added', models.DateTimeField(auto_now_add=True)),
+                ('updated', models.DateTimeField(auto_now=True)),
             ],
             options={
             },
             bases=(models.Model,),
+        ),
+        migrations.AddField(
+            model_name='postsnapshot',
+            name='snapshot',
+            field=models.ForeignKey(to='rank.Snapshot'),
+            preserve_default=True,
         ),
         migrations.AddField(
             model_name='post',
@@ -104,8 +128,14 @@ class Migration(migrations.Migration):
         ),
         migrations.AddField(
             model_name='post',
-            name='linke',
+            name='link',
             field=models.ForeignKey(to='rank.Link'),
+            preserve_default=True,
+        ),
+        migrations.AddField(
+            model_name='post',
+            name='subreddit',
+            field=models.ForeignKey(to='rank.Subreddit'),
             preserve_default=True,
         ),
     ]

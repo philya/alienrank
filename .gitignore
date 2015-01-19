@@ -1,6 +1,7 @@
 /var/**
 **/scss/*.css
 
+alienrank/celerybeat-schedule
 
 # Basics
 *.py[cod]
