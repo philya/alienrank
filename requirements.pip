@@ -9,6 +9,7 @@ celery==3.1.17
 django-celery==3.1.16
 django-extensions==1.4.9
 django-jsonfield==0.9.13
+ipython==2.3.1
 kombu==3.0.24
 praw==2.1.19
 pytz==2014.10
