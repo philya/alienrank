@@ -24,6 +24,8 @@ class MediaProperty(models.Model):
     score_total = models.IntegerField(null=True)
     score_average = models.IntegerField(null=True)
 
+    top_post = models.ForeignKey('Post', related_name="+", null=True)
+
     @classmethod
     def update_counts_all(cls):
         for d in MediaProperty.objects.all():
@@ -34,6 +36,11 @@ class MediaProperty(models.Model):
         self.score_total = self.domain_set.exclude(domain_type='cdn').aggregate(Sum('score_total')).values()[0]
         if(self.post_count and self.score_total):
             self.score_average = int(round((self.score_total + 0.0) / (self.post_count + 0.0)))
+
+        try:
+            self.top_post = self.domain_set.exclude(domain_type='cdn').filter(top_post__isnull=False).filter(top_post__top_place__isnull=False).order_by('top_post__top_place', '-top_post__score')[0].top_post
+        except IndexError:
+            pass
 
         if save:
             self.save()
@@ -68,6 +75,8 @@ class Domain(models.Model):
     media_property = models.ForeignKey(MediaProperty, null=True)
     domain_type = models.CharField(max_length=10, null=True, choices=DOMAIN_TYPES, db_index=True)
 
+    top_post = models.ForeignKey('Post', related_name="+", null=True)
+
     @classmethod
     def update_counts_all(cls):
         for d in Domain.objects.all():
@@ -79,6 +88,11 @@ class Domain(models.Model):
         score_average = self.post_set.aggregate(Avg('score')).values()[0]
         if score_average:
             self.score_average = int(round(score_average))
+
+        try:
+            self.top_post = self.post_set.filter(top_place__isnull=False).order_by('top_place', '-score')[0]
+        except IndexError:
+            pass
 
         if save:
             self.save()
@@ -216,6 +230,8 @@ class Post(models.Model):
 
     title = models.CharField(max_length=300)
 
+    top_place = models.IntegerField(null=True, db_index=True)
+
     created = models.DateTimeField()
 
     added = models.DateTimeField(auto_now_add=True)
@@ -236,6 +252,9 @@ class Post(models.Model):
         post.subreddit = Subreddit.update(pr.subreddit)
         """
 
+        if (post.top_place == None) or (postsnap.place < post.top_place):
+            post.top_place = postsnap.place
+
         post.subreddit_uid = pr.subreddit_id
         post.author_name = pr.author.name
 
@@ -243,7 +262,7 @@ class Post(models.Model):
         post.ups = pr.ups
         post.downs = pr.downs
         post.num_comments = pr.num_comments
-        post.permadomain = pr.permalink
+        post.permalink = pr.permalink
         post.title = pr.title
         post.created = datetime.datetime.utcfromtimestamp(pr.created_utc)
 
