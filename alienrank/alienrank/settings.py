@@ -197,7 +197,7 @@ from datetime import timedelta
 CELERYBEAT_SCHEDULE = {
     'read-reddit-top': {
         'task': 'rank.tasks.read_reddit_top',
-        'schedule': timedelta(minutes=15),
+        'schedule': timedelta(minutes=5),
     },
 }
 

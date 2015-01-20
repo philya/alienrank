@@ -156,9 +156,9 @@ class Redditor(models.Model):
 
     comment_karma = models.IntegerField()
     link_karma = models.IntegerField()
-    is_mod = models.BooleanField()
+    is_mod = models.BooleanField(default=False)
 
-    is_gold = models.BooleanField()
+    is_gold = models.BooleanField(default=False)
 
     created = models.DateTimeField()
 
@@ -202,8 +202,10 @@ class Post(models.Model):
     link = models.ForeignKey(Link)
 
     author = models.ForeignKey(Redditor, null=True)
+    author_name = models.CharField(max_length=20, null=True)
 
     subreddit = models.ForeignKey(Subreddit, null=True)
+    subreddit_uid = models.CharField(max_length=10, null=True)
 
     score = models.IntegerField()
     ups = models.IntegerField()
@@ -228,8 +230,14 @@ class Post(models.Model):
 
         post.domain = Domain.update(pr.domain)
         post.link = Link.update(pr.url)
+
+        """
         post.author = Redditor.update(pr.author)
         post.subreddit = Subreddit.update(pr.subreddit)
+        """
+
+        post.subreddit_uid = pr.subreddit_id
+        post.author_name = pr.author.name
 
         post.score = pr.score
         post.ups = pr.ups
@@ -245,10 +253,13 @@ class Post(models.Model):
 
 class Snapshot(models.Model):
     added = models.DateTimeField(auto_now_add=True)
+    
+    listing = models.CharField(max_length=30, null=True)
+    listing_limit = models.IntegerField(null=True)
 
     @classmethod
-    def create(cls, praw_result):
-        snapshot = Snapshot()
+    def create(cls, praw_result, listing, listing_limit):
+        snapshot = Snapshot(listing=listing, listing_limit=listing_limit)
         snapshot.save()
 
         place = 0
