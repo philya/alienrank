@@ -11,7 +11,11 @@ from jsonfield import JSONField
 
 # AlienRank
 
-class Domain(models.Model):
+import logging
+logger = logging.getLogger(__name__)
+
+class MediaProperty(models.Model):
+
     name = models.CharField(max_length=200, db_index=True)
 
     added = models.DateTimeField(auto_now_add=True)
@@ -19,6 +23,50 @@ class Domain(models.Model):
     post_count = models.IntegerField(null=True)
     score_total = models.IntegerField(null=True)
     score_average = models.IntegerField(null=True)
+
+    @classmethod
+    def update_counts_all(cls):
+        for d in MediaProperty.objects.all():
+            d.update_counts()
+
+    def update_counts(self, save=True):
+        self.post_count = self.domain_set.exclude(domain_type='cdn').aggregate(Sum('post_count')).values()[0]
+        self.score_total = self.domain_set.exclude(domain_type='cdn').aggregate(Sum('score_total')).values()[0]
+        if(self.post_count and self.score_total):
+            self.score_average = int(round((self.score_total + 0.0) / (self.post_count + 0.0)))
+
+        if save:
+            self.save()
+
+    @classmethod
+    def update(cls, name):
+        try:
+            mp = MediaProperty.objects.get(name=name)
+        except MediaProperty.DoesNotExist:
+            mp = MediaProperty(name=name)
+            mp.save()
+
+        return mp
+
+class Domain(models.Model):
+
+    DOMAIN_TYPES = (
+        ('main', 'Main'),
+        ('cdn', 'CDN'),
+        ('sub', 'Subdomain'),
+        ('reddit', 'Reddit'),
+    )
+
+    name = models.CharField(max_length=200, db_index=True)
+
+    added = models.DateTimeField(auto_now_add=True)
+
+    post_count = models.IntegerField(null=True)
+    score_total = models.IntegerField(null=True)
+    score_average = models.IntegerField(null=True)
+
+    media_property = models.ForeignKey(MediaProperty, null=True)
+    domain_type = models.CharField(max_length=10, null=True, choices=DOMAIN_TYPES, db_index=True)
 
     @classmethod
     def update_counts_all(cls):
@@ -41,8 +89,12 @@ class Domain(models.Model):
             domain = Domain.objects.get(name=name)
         except Domain.DoesNotExist:
             domain = Domain(name=name)
-            domain.save()
 
+            if name.startswith('self.'):
+                domain.media_property = MediaProperty.update(name="reddit.com")
+                domain.domain_type = "reddit"
+
+            domain.save()
         
         return domain
 
@@ -118,24 +170,29 @@ class Redditor(models.Model):
         if pr == None:
             return None
         try:
-            redditor = Redditor.objects.get(pk=pr.id)
-        except Redditor.DoesNotExist:
-            redditor = Redditor(id=pr.id)
+            try:
+                redditor = Redditor.objects.get(pk=pr.id)
+            except Redditor.DoesNotExist:
+                redditor = Redditor(id=pr.id)
 
-        redditor.name = pr.name
-        redditor.url = pr._url
-        redditor.info_url = pr._info_url
+            redditor.name = pr.name
+            redditor.url = pr._url
+            redditor.info_url = pr._info_url
 
-        redditor.comment_karma = pr.comment_karma
-        redditor.link_karma = pr.link_karma
+            redditor.comment_karma = pr.comment_karma
+            redditor.link_karma = pr.link_karma
 
-        redditor.is_mod = pr.is_mod
-        redditor.is_gold = pr.is_gold
+            redditor.is_mod = pr.is_mod
+            redditor.is_gold = pr.is_gold
 
-        redditor.created = datetime.datetime.utcfromtimestamp(pr.created_utc)
+            redditor.created = datetime.datetime.utcfromtimestamp(pr.created_utc)
 
-        redditor.save()
-        return redditor
+            redditor.save()
+            return redditor
+
+        except:
+            logger.error("Error while creating PostSnapshot: " + pr.name)
+            return None
 
 class Post(models.Model):
 
@@ -198,7 +255,8 @@ class Snapshot(models.Model):
         for p in praw_result:
             place += 1
             postsnap = PostSnapshot.create(snapshot, place, p)
-            print postsnap.place, postsnap.post.title
+            if postsnap:
+                print str(postsnap.place) + ": " + postsnap.post.title
 
         return snapshot
 
@@ -212,17 +270,21 @@ class PostSnapshot(models.Model):
 
     @classmethod
     def create(cls, snapshot, place, praw_result):
-        postsnap = PostSnapshot(
-            place=place,
-            snapshot=snapshot,
-            data=praw_result.json_dict)
-        postsnap.save()
+        try:
+            postsnap = PostSnapshot(
+                place=place,
+                snapshot=snapshot,
+                data=praw_result.json_dict)
+            postsnap.save()
 
-        post = Post.update(postsnap, praw_result)
+            post = Post.update(postsnap, praw_result)
 
-        postsnap.post = post
-        postsnap.save()
+            postsnap.post = post
+            postsnap.save()
 
-        return postsnap
+            return postsnap
+        except Exception, e:
+            logger.error("Error while creating PostSnapshot: " + praw_result.title)
+
 
     
