@@ -304,7 +304,8 @@ class PostSnapshot(models.Model):
             postsnap = PostSnapshot(
                 place=place,
                 snapshot=snapshot,
-                data=praw_result.json_dict)
+            )
+            #    data=praw_result.json_dict)
             postsnap.save()
 
             post = Post.update(postsnap, praw_result)
