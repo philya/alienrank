@@ -40,7 +40,7 @@ class MediaProperty(models.Model):
         try:
             self.top_post = self.domain_set.exclude(domain_type='cdn').filter(top_post__isnull=False).filter(top_post__top_place__isnull=False).order_by('top_post__top_place', '-top_post__score')[0].top_post
         except IndexError:
-            pass
+            self.top_post = None
 
         if save:
             self.save()
@@ -92,7 +92,7 @@ class Domain(models.Model):
         try:
             self.top_post = self.post_set.filter(top_place__isnull=False).order_by('top_place', '-score')[0]
         except IndexError:
-            pass
+            self.top_post = None
 
         if save:
             self.save()
