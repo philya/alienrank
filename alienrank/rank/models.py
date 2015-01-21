@@ -285,8 +285,8 @@ class Snapshot(models.Model):
         for p in praw_result:
             place += 1
             postsnap = PostSnapshot.create(snapshot, place, p)
-            if postsnap:
-                print str(postsnap.place) + ": " + postsnap.post.title
+            #if postsnap:
+            #    print str(postsnap.place) + ": " + postsnap.post.title
 
         return snapshot
 
