@@ -1,0 +1,20 @@
+{
+  "name": "AlienRank",
+  "version": "0.0.1",
+  "homepage": "http://alienrank.com",
+  "authors": [
+    "Sacha Kyvner <philya@gmail.com>"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "polymer": "Polymer/Polymer#~0.5.3"
+  }
+}

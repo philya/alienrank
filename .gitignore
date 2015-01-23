@@ -1,5 +1,6 @@
 /var/**
 **/scss/*.css
+**/bower_components
 
 alienrank/celerybeat-schedule
 
