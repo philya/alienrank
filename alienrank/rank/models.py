@@ -237,6 +237,21 @@ class Post(models.Model):
     added = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
+    def api_serialize(self):
+        
+        return {
+            'id': self.id,
+            'title': self.title,
+            'created': self.created,
+            'top_place': self.top_place,
+            'url': self.link.url,
+            'score': self.score,
+            'permalink': self.permalink,
+            'domain': self.domain.name,
+            'author_name': self.author_name,
+
+        }
+
     @classmethod
     def update(cls, postsnap, pr):
         try:

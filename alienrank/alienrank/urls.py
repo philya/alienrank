@@ -8,5 +8,7 @@ urlpatterns = patterns('',
     url(r'^$', 'rank.views.home', name='home'),
     # url(r'^blog/', include('blog.urls')),
 
+    url(r'^api/posts$', 'rank.api.post_list', name="api_posts"),
+
     url(r'^admin/', include(admin.site.urls)),
 )  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
