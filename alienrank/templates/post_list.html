@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-12">
+
+            <form class="form-inline" method="GET" action="{% url 'post_list' %}">
+  <div class="form-group">
+    <label for="id_hide_cdn">Hide links to CDN</label>
+    {{ fform.hide_cdn }}
+  </div>
+  <div class="form-group">
+    <label for="id_hide_reddit">Hide links to Reddit</label>
+    {{ fform.hide_reddit }}
+  </div>
+  <div class="form-group">
+      <label for="id_begin">From</label>
+      {{ fform.begin }}
+  </div>
+  <button type="submit" class="btn btn-default">Update</button>
+</form>
+
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-md-12">
+
+          <style>
+            table.table {
+              /*
+              width: auto;
+              text-align: right;
+              */
+              font-size: 18px;
+              color: #3e3e3e;
+            }
+            table th {
+              /*
+              text-align: right;
+              */
+            }
+          </style>
+          <table class="table" style="">
+            <thead >
+            <tr>
+              <th>#</th>
+              <th>Site</th>
+              <th>Post</th>
+              <th>Date</th>
+              <th>Score</th>
+              <th>Place</th>
+            </tr>
+            </thead>
+            {% for p in posts %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+
+              <td>{{ p.domain.media_property.name }}
+                  {% ifequal p.domain.domain_type 'cdn' %}
+                  (CDN)
+                  {% endifequal %}
+              </td>
+              <td><a href="{{ p.permalink }}">{{ p.title|wordwrap:5 }}</a></td>
+              <td>{{ p.created|date:"M d, Y" }}</td>
+              <td>{{ p.score }}</td>
+              <td>{{ p.top_place }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+{% endblock %}

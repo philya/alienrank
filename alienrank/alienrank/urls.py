@@ -6,6 +6,7 @@ from django.conf import settings
 urlpatterns = patterns('',
     # Examples:
     url(r'^$', 'rank.views.home', name='home'),
+    url(r'^posts$', 'rank.views.post_list', name='post_list'),
     # url(r'^blog/', include('blog.urls')),
 
     url(r'^api/posts$', 'rank.api.post_list', name="api_posts"),

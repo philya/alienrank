@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-12">
+
+          <style>
+            table.table {
+              /*
+              width: auto;
+              text-align: right;
+              */
+              font-size: 18px;
+              color: #3e3e3e;
+            }
+            table th {
+              /*
+              text-align: right;
+              */
+            }
+          </style>
+          <p>
+            Last Snapshot: {{ last_snapshot.added }} UTC
+          </p>
+          <table class="table" style="">
+            <thead >
+            <tr>
+              <th>#</th>
+              <th>Total Score</th>
+              <th>Avg Score</th>
+              <th>Posts</th>
+              <th>Site</th>
+              <th>Best Post</th>
+              <th>Score</th>
+              <th>Place</th>
+            </tr>
+            </thead>
+            {% for mp in mps %}
+            <tr>
+              <td>{{ forloop.counter }}</td>
+              <td>{{ mp.score_total }}</td>
+              <td>{{ mp.score_average }}</td>
+              <td>{{ mp.post_count }}</td>
+              <td>{{ mp.name }}</td>
+              <td><a href="{{ mp.top_post.permalink }}">{{ mp.top_post.title }}</a></td>
+              <td>{{ mp.top_post.score }}</td>
+              <td>{{ mp.top_post.top_place }}</td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+      </div>
+{% endblock %}
