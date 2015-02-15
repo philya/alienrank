@@ -22,7 +22,7 @@ class Command(BaseCommand):
             "r": "reddit",
         }
 
-        for d in Domain.objects.filter(media_property__isnull=True, top_post__top_place__lte=lowest_top):
+        for d in Domain.objects.filter(top_post__isnull=False, media_property__isnull=True).filter(top_post__top_place__lte=lowest_top):
             while True:
                 print d.name, "(Main/Cdn/Sub/Reddit):",
                 choice_char = raw_input().lower()
