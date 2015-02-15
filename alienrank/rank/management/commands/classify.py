@@ -11,6 +11,10 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
+        lowest_top = 25
+        if len(args) > 0:
+            lowest_top = int(args[0])
+
         CHOICES = {
             "m": "main",
             "c": "cdn",
@@ -18,7 +22,7 @@ class Command(BaseCommand):
             "r": "reddit",
         }
 
-        for d in Domain.objects.filter(media_property__isnull=True):
+        for d in Domain.objects.filter(media_property__isnull=True, top_post__top_place__lte=lowest_top):
             while True:
                 print d.name, "(Main/Cdn/Sub/Reddit):",
                 choice_char = raw_input().lower()
